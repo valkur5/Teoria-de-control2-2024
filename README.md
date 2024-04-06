@@ -1,8 +1,6 @@
-Problema con la actividad 1: 
-No estoy pudiendo plotear correctamente, en el código solo me deja plotear algo si reduzco el tiempo a 0.1 segundos de tiempo. Los valores que calcula son muy altos, por lo que tiene dificultades para plotear.
+Problema con la actividad 1, ejercicio 2: 
+Logro poder generar una aproximación, con los valores que obtengo mediante el archivo que nos facilitó (Lo convertí a formato CSV debido a que mi octave no podía importar el archivo xls correctamente).
+La aproximación me da por resultado una curva en la parte de abajo muy grande, y también me da valores muy raros de la función de transferencia aproximada que no se relacionan directamente con los componentes RLC como si lo hace la función de transferencia del ejercicio anterior. 
 
-Yo creo que la raíz de mis valores tan grandes es el bajo valor del inductor y el capacitor, ya que en las fórmulas estos se encuentran en los denominadores, pero consulto debido a que puede que yo esté fallando en algo.
-
-También quería consultar sobre el cómo hacer la simulación con valores iniciales, ya que si bien me hago una idea, en el código de ejemplo visto en clases se hace de una forma que me confunde.
-
+Así mismo también me genera una curva con negativa muy alta antes de empezar a aproximarse a la respuesta al escalón de mi función, quería consultar si estaba bien ese tipo de respuesta.
 Desde ya muchas gracias
