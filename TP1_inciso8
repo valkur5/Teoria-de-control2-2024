@@ -70,21 +70,22 @@ acc(1)=0;
 
 %%Creamos el observador
 A_dual=A';
-B_dual=B';
-C_dual=C_t';
-Polos_Obs=[-10;-9]; % Polos del observador
-alfa=poly(Polos_Obs);
-M=[C_dual A_dual*C_dual (A_dual^2)*C_dual]; %Matriz de controlabilidad dual
-autoval=eig(A);
+B_dual=C_t';
+C_dual=B';
+Polos_Obs=[-.5e2;-5e2+0.5i;-5e2-0.5i]; % Polos del observador
+alfa=poly(Polos_Obs*20);
+M=[B_dual A_dual*B_dual (A_dual^2)*B_dual]; %Matriz de controlabilidad dual
+autoval=eig(A_dual);
 c_ai=poly(autoval);
 W=[c_ai(3) c_ai(2) 1; c_ai(2) 1 0; 1 0 0];
 T=M*W;
-Ko=(fliplr(alfa(2:end)-c_ai(2:end))*inv(T))';
-X_hat=[0; 0; 0];Yo(1)=0;
+Ko=(fliplr(alfa(2:4)-c_ai(2:4))*inv(T))';
+
+X_hat=[0; 0; 0];Yo(2)=0; ia_ob(1)=0;
 
 
 tic
-for(i=1:1:(tiempo+1))
+for(i=2:1:(tiempo+1))
   k=i+2;
   ia(i)=X(1);wr(i)=X(2);tita(i)=X(3);
   if(titaref(i)==(pi/2))
@@ -97,12 +98,11 @@ for(i=1:1:(tiempo+1))
   acc(i)=u(1);
   X_p=A*X+B*u;
   X=X+h*X_p;
-  Y(i)=C_t*X;
 
   %%ciclo del observador
-  X_hat_p=A*X_hat+B*u+Ko*(Y(i-1)-C*X_hat);
-  X_hat=X_hat+X_hat_p*h
-  Yo(ii-1)=[1 0 0]*X_hat;
+  X_hat_p=A*X_hat+B*u+Ko*(ia(i-1)-X_hat(1));
+  X_hat=X_hat+X_hat_p*h;
+  ia_ob=X_hat(1);
 end
 toc
 
