@@ -7,41 +7,15 @@ h=1e-7;
 tiempo=(.1/h);
 t=0:h:(tiempo*h);
 i=1;
-
-%Definición de Constantes
-
-data=transpose(csvread("Curvas_Medidas_Motor.csv"));
-t_d=data(1,:);
-wr_d=data(2,:);
-ia_d=data(3,:);
-Va_d=data(4,:);
-TL_d=data(5,:);
-
-%cálculo con chen para va
-t_inic_va=0.000089;
-retardo_va=0.0351;
-Amplitud_va=12;
-
-sys_G_ang1= Chen_MOTOR(Amplitud_va, t_d, wr_d, t_inic_va,retardo_va, 198.248802246817);
-sys_G_ang1.num{1}(1)=0
-[ychen ,tchen,ent]=lsim(sys_G_ang1, Va_d ,t_d, [0,0]);
-
-%Cálculo de chen para TL
-t_inic_TL=0.00036;
 retardo_TL=0.186300000000042;
-Amplitud_TL=1.03e-03;
 
-sys_G_ang2= Chen_TL(Amplitud_TL, t_d, wr_d, t_inic_TL, retardo_TL, 33.39);
-sys_G_ang2.den{1}=sys_G_ang1.den{1}
-[y2chen ,t2chen,ent2]=lsim(sys_G_ang2, TL_d,t_d, [0,0]);
-
-##Una vez teniendo las gráficas y las funciones de transferencia, podemos determinar los componentes como
-RA=12/max(ia_d(1:200))
-J=(sys_G_ang2.den{1}(2))/(sys_G_ang2.num{1}(2))
-Km=1/sys_G_ang1.num{1}(1)
-Ki=RA/(Km*sys_G_ang2.num{1}(2))
-LAA=sys_G_ang2.num{1}(1)*Ki*Km
-Bm=0
+##Los componentes calculados en el inciso ítem 5 anterior son
+RA = 28.131
+J = 1.8826e-09
+Km = 0.060530
+Ki = 0.014336
+LAA = 1.5349e-03
+Bm = 0
 
 %Las matrices son:
 A=[-RA/LAA -Km/LAA 0;Ki/J -Bm/J 0;0 1 0]
@@ -67,7 +41,6 @@ X=[ia(1) ; wr(1) ; tita(1)];
 u=[Va(1); TL(1)];
 acc(1)=0;
 
-
 %%Creamos el observador
 A_dual=A';
 B_dual=C_t';
@@ -79,7 +52,7 @@ autoval=eig(A_dual);
 c_ai=poly(autoval);
 W=[c_ai(3) c_ai(2) 1; c_ai(2) 1 0; 1 0 0];
 T=M*W;
-Ko=(fliplr(alfa(2:4)-c_ai(2:4))*inv(T))';
+Ko=(fliplr(alfa(2:4)-c_ai(2:4))*inv(T))'; %Ganancia de nuestro observador
 
 X_hat=[0; 0; 0];Yo(2)=0; ia_ob(1)=0;
 
@@ -108,5 +81,3 @@ toc
 
 #Se nos pide medir la corriente con el observador, es por eso que ahora, superponemos las gráficas de la corriente simulada y la corriente medida por el observador
 plot(t,ia), hold on, grid on, plot(t,ia_ob,"-."), legend("corriente real","corriente del observador");
-
-
