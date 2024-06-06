@@ -80,4 +80,5 @@ end
 toc
 
 #Se nos pide medir la corriente con el observador, es por eso que ahora, superponemos las gráficas de la corriente simulada y la corriente medida por el observador
-plot(t,ia), hold on, grid on, plot(t,ia_ob,"-."), legend("corriente real","corriente del observador");
+plot(t,ia), hold on, grid on, plot(t,ia_ob,"-."), title("Corriente de armadura"),legend("corriente real","corriente del observador");
+
