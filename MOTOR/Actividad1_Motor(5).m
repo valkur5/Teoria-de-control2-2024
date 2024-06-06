@@ -72,7 +72,7 @@ subplot(4,1,2),plot(t,ia),grid on, title ("Corriente de armadura");
 subplot(4,1,3),plot(t,tita),grid on, title("tita");
 subplot(4,1,4),plot(t,TL),grid on; title("carga");
 
-##
+
 ##figure 1;
 ##plot(t_d,wr_d),hold on, plot(t_d,ychen-y2chen), title("comparacion del sistema real con el aproximado"),legend("real","aproximado con chen"); grid on;
 
