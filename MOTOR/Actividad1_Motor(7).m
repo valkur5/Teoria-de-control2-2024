@@ -7,11 +7,6 @@ h=1e-7;
 tiempo=(.1/h);
 t=0:h:(tiempo*h);
 i=1;
-%Definición de variables útiles
-h=1e-7;
-tiempo=(.1/h);
-t=0:h:(tiempo*h);
-i=1;
 retardo_TL=0.186300000000042;
 
 ##Los componentes calculados en el inciso ítem 5 anterior son
