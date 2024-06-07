@@ -3,7 +3,7 @@ pkg load control signal io symbolic;
 clc; clear all; close all;
 
 %Definición de variables útiles
-h=1e-7;
+h=10e-7;
 tiempo=(.1/h);
 t=0:h:(tiempo*h);
 i=1;
@@ -24,13 +24,20 @@ C_t=[0 0 1]
 D=0
 
 #Constantes del PID
-Kp=0.1; Ki=0.01;Kd=5;
+Kp=10; Ki=0.05;Kd=.001;
 
 A1=((2*Kp*h)+(Ki*(h^2))+(2*Kd))/(2*h);
 B1=(-2*Kp*h+Ki*(h^2)-4*Kd)/(2*h);
 C1=Kd/h;
 
 e_tita(1)=0;
+
+#K ampliado
+Q=diag([1 1e-6 1 1e5]);
+R=1e-3;
+A_ampliado=[A zeros(3,1);-C_t 0]
+B_ampliado=[B(:,1);0]
+Ka=lqr(A_ampliado,B_ampliado,Q,R);
 
 %%creamos las entradas
 titaref=(pi/2)*square(2*pi*(t+retardo_TL)/.1); %%1 radian
@@ -55,7 +62,7 @@ T=M*W;
 Ko=(fliplr(alfa(2:4)-c_ai(2:4))*inv(T))'; %Ganancia de nuestro observador
 
 X_hat=[0; 0; 0];Yo(2)=0; ia_ob(1)=0;
-
+psi=0;
 
 tic
 for(i=2:1:(tiempo+1))
@@ -67,12 +74,14 @@ for(i=2:1:(tiempo+1))
     TL(i)=0;
   end
   e_tita(k)=titaref(i)-tita(i);
-  u=[u(1)+A1*e_tita(k)+B1*e_tita(k-1)+C1*e_tita(k-2); TL(i)];
+  u=[-Ka*[X_hat;psi]; TL(i)];
   acc(i)=u(1);
   X_p=A*X+B*u;
   X=X+h*X_p;
+  psi=psi+h*e_tita(k);
 
   %%ciclo del observador
+
   X_hat_p=A*X_hat+B*u+Ko*(ia(i-1)-X_hat(1));
   X_hat=X_hat+X_hat_p*h;
   ia_ob(i)=X_hat(1);
@@ -80,5 +89,11 @@ end
 toc
 
 #Se nos pide medir la corriente con el observador, es por eso que ahora, superponemos las gráficas de la corriente simulada y la corriente medida por el observador
+figure 1;
 plot(t,ia), hold on, grid on, plot(t,ia_ob,"-."), title("Corriente de armadura"),legend("corriente real","corriente del observador");
 
+figure 2;
+subplot(4,1,1),plot(t,wr),hold on, grid on, title("Velocidad angular");
+subplot(4,1,2),plot(t,ia),grid on, title ("Corriente de armadura");
+subplot(4,1,3),plot(t,tita),grid on, title("tita");
+subplot(4,1,4),plot(t,TL),grid on; title("carga");
