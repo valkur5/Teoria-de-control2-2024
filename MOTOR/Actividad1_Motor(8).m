@@ -24,7 +24,7 @@ C_t=[0 0 1]
 D=0
 
 #Constantes del PID
-Kp=10; Ki=0.05;Kd=.001;
+Kp=10; Ki=0.5;Kd=.001;
 
 A1=((2*Kp*h)+(Ki*(h^2))+(2*Kd))/(2*h);
 B1=(-2*Kp*h+Ki*(h^2)-4*Kd)/(2*h);
