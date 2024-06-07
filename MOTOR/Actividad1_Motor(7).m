@@ -3,7 +3,7 @@ pkg load control signal io symbolic;
 clc; clear all; close all;
 
 %Definición de variables útiles
-h=1e-7;
+h=10e-7;
 tiempo=(.1/h);
 t=0:h:(tiempo*h);
 i=1;
@@ -24,7 +24,7 @@ C_t=[0 1 0]
 D=0
 
 #Constantes del PID
-Kp=0.1; Ki=0.01;Kd=5;
+Kp=10; Ki=0.05;Kd=.001;
 
 A1=((2*Kp*h)+(Ki*(h^2))+(2*Kd))/(2*h);
 B1=(-2*Kp*h+Ki*(h^2)-4*Kd)/(2*h);
