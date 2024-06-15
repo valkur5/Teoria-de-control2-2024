@@ -1,4 +1,4 @@
-##TP2 inciso 1
+##TP2 Caso 1: Motor
 pkg load control signal io symbolic;
 clc; clear all; close all;
 
@@ -41,7 +41,7 @@ B_ampliado=[B(:,1);0]
 Ka=lqr(A_ampliado,B_ampliado,Q,R);
 
 %%creamos las entradas
-titaref=(pi/2)*square(2*pi*(t+retardo_TL)/.1); %%1 radian
+titaref=(pi/2)*square(2*pi*(t+retardo_TL)/.1); %%varía entre pi/2 y -pi/2
 TL=0;
 Va=heaviside(t-0.005)*12;
 ia(1)=0; wr(1)=0; tita(1)=0;

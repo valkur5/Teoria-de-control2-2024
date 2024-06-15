@@ -53,8 +53,8 @@ while(i<(tiempo+2))
   I(i)=X(1);V_c(i)=X(2);
   if( i==100 ) %Genera un retardo de 100 tics, que son aprox. 10ms, la entrada es 0 hasta entonces
   Ve=12;
-end
-if( mod(i, 500) == 0) %Cambia el valor de la entrada cada 500 tics luego de eso, que son aprox 50 ms
+  end
+  if( mod(i, 500) == 0) %Cambia el valor de la entrada cada 500 tics luego de eso, que son aprox 50 ms
     if (Ve==12)
       Ve=-12;
     else
@@ -73,7 +73,7 @@ end
 
 
 figure 2;
-subplot(3,1,1);plot(t_d,I_d); title("Corriente");grid on;hold on;plot(t,I,'--');legend("corriente real","corriente aproximada");
+subplot(3,1,1);plot(t_d,I_d); title("Corriente");grid on;hold on;plot(t_d,I,'--');legend("corriente real","corriente aproximada");
 subplot(3,1,2);plot(t_d,V_c_d); title("Tension del capacitor");grid on;hold on;plot(t,V_c,"--");legend("tensión real","tensión aproximada");
 subplot(3,1,3);plot(t_d,Ve_d); title("Voltaje de entrada");grid on;hold on;plot(t,u,"--");
 
