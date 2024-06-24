@@ -99,11 +99,13 @@ figure 1;
 plot(t,ia), hold on, grid on, plot(t,ia_ob,"-."), title("Corriente de armadura"),legend("corriente real","corriente del observador");
 
 figure 2;
-subplot(4,1,1),plot(t,wr),hold on, grid on, title("Velocidad angular");
-subplot(4,1,2),plot(t,ia),grid on, title ("Corriente de armadura");
-subplot(4,1,3),plot(t,tita),grid on, title("tita");
-subplot(4,1,4),plot(t,TL),grid on; title("carga");
+subplot(2,1,1),plot(t,wr),hold on, grid on, title("Velocidad angular");
+subplot(2,1,2),plot(t,ia),grid on, title ("Corriente de armadura");
 
 figure 3;
+subplot(2,1,1),plot(t,tita),grid on, title("tita");
+subplot(2,1,2),plot(t,TL),grid on; title("carga");
+
+figure 4;
 plot(t,acc), hold on, grid on, title("Acción de control (V_A)");
 
