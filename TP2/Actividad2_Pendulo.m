@@ -2,9 +2,9 @@
 pkg load control signal io symbolic;
 clc; clear all; close all;
 %% variables utiles
-Ts=1e-4;
+Ts=1e-3;
 i=1; ki=1;
-h = Ts/20;
+h = Ts/2.0;
 t = 0:h:15;
 p_max = floor(15/Ts);
 %Parámetros
@@ -58,8 +58,8 @@ Aa_ = [Ad_ , zeros(4,1) ; -Cd_(1,:)*Ad_, eye(1)];
 Ba_ = [Bd_; -Cd_(1,:)*Bd_];
 
 %%Calculamos el LQR para cada caso
-Q1 = diag([1 50 500 .1 .0003]); R1=1;
-Q2 = diag([10 50 90 .01 .00045]); R2=.1;
+Q1 = diag([1 1 5 5 .000003]); R1=1;
+Q2 = diag([400 200 100 100 .000001]); R2=20;
 
 [Klqr1, ~, ~] = dlqr(Aa, Ba, Q1, R1);
 [Klqr2, ~, ~] = dlqr(Aa_, Ba_, Q2, R2);
@@ -76,7 +76,6 @@ KI_ = -Klqr2(5);
 Ao = Ad';
 Bo = Cd';
 Co = Bd';
-
 Qo = diag([100 5000 50000 10]);
 Ro = diag([.01 .01]);
 Ko = (dlqr(Ao,Bo,Qo,Ro))';
@@ -105,7 +104,7 @@ xop = [0 0 pi 0]'; %Punto de operacion
 u = [];
 flag  = 0;
 
-ei(1) = 0;
+ei = 0;
 x_hat = [0 0 pi 0]';
 
 for ki=1:p_max
@@ -114,18 +113,18 @@ for ki=1:p_max
     Ys   = Cd*X;             % salida del sistema
     Y_obs = Cd*(x_hat+xop);   % salida del observador
 
-    ei(ki+1)= ei(ki)+posRef-Ys(1);
+    ei= ei+posRef-Ys(1);
 
     %Ley de control
-    %u1(ki) = -K*(x - xop) + KI*ei(ki+1);          % sin observador
-    u1(ki)  = -K*(x_hat - xop) + KI*ei(ki+1);     % con observador
+    u1(ki) = -K*(X - xop) + KI*ei;          % sin observador
+%     u1(ki)  = -K*(x_hat - xop) + KI*ei;     % con observador
 
     % Zona Muerta
-    if(abs(u1(ki)) < 0.5)
-        u1(ki) = 0;
-    else
-        u1(ki) = sign(u1(ki))*(abs(u1(ki)) - 0.5);
-    end
+%     if(abs(u1(ki)) < 0.5)
+%         u1(ki) = 0;
+%     else
+%         u1(ki) = sign(u1(ki))*(abs(u1(ki)) - 0.5);
+%     end
 
 
     % Integraciones de Euler por paso de simulaci�n
@@ -143,14 +142,14 @@ for ki=1:p_max
 
         if(d(i) >= 9.99)
             if(flag == 0)
-                ref  = 0;
+                posRef  = 0;
                 m  = m_;
                 flag = 1;
                 K  = K_;
-                Ki = Ki_;
+                Ki = KI_;
                 Ko = Ko_;
-                A    = Ad_;
-                B    = Bd_;
+                Ad    = Ad_;
+                Bd    = Bd_;
             end
         end
         i=i+1;
@@ -160,7 +159,7 @@ for ki=1:p_max
     % Estados del sistema
     X     = [d(i-1) d_p(i-1) phi(i-1) phi_p(i-1)]';
     % Estados estimados por el observador
-    x_hat = Ad*x_hat + Bd*u1(ki) + Ko*(Ys - Y_obs) + xop;
+    x_hat = Ad*(x_hat-xop) + Bd*u1(ki) + Ko*(Ys - Y_obs) + xop;
 end
 
 u(i) = u1(ki);
