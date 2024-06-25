@@ -2,7 +2,7 @@
 pkg load control signal io symbolic;
 clc; clear all; close all;
 %% variables utiles
-Ts=1e-3;
+Ts=1e-2;
 i=1; ki=1;
 h = Ts/20;
 t = 0:h:15;
@@ -58,8 +58,8 @@ Aa_ = [Ad_ , zeros(4,1) ; -Cd_(1,:)*Ad_, eye(1)];
 Ba_ = [Bd_; -Cd_(1,:)*Bd_];
 
 %%Calculamos el LQR para cada caso
-Q1 = diag([1 50 500 .1 .0003]); R1=1;
-Q2 = diag([10 50 90 .01 .00045]); R2=.1;
+Q1 = diag([10 50 500 .1 .0003]); R1=.5;
+Q2 = diag([10 50 90 .01 .00045]); R2=1;
 
 [Klqr1, ~, ~] = dlqr(Aa, Ba, Q1, R1);
 [Klqr2, ~, ~] = dlqr(Aa_, Ba_, Q2, R2);
@@ -167,7 +167,7 @@ for ki=1:p_max
     % Estados del sistema
     X     = [d(i-1) d_p(i-1) phi(i-1) phi_p(i-1)]';
     % Estados estimados por el observador
-    x_hat = A*(x_hat) + B*u1(ki) + Ko*(Ys - Y_obs) + xop;
+    x_hat = A*(x_hat-xop) + B*u1(ki) + Ko*(Ys - Y_obs) + xop;
 end
 
 u(i) = u1(ki);
