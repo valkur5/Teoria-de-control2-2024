@@ -5,8 +5,8 @@ clc; clear all; close all;
 Ts=1e-2;
 i=1; ki=1;
 h = Ts/20;
-t = 0:h:15;
-p_max = floor(15/Ts);
+t = 0:h:55;
+p_max = floor(55/Ts);
 %Parámetros
 m  = 0.1;
 m_ = m*10;
