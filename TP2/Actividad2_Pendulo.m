@@ -4,7 +4,7 @@ clc; clear all; close all;
 %% variables utiles
 Ts=1e-3;
 i=1; ki=1;
-h = Ts/2.0;
+h = Ts/20;
 t = 0:h:15;
 p_max = floor(15/Ts);
 %Parámetros
@@ -34,7 +34,7 @@ B=[   0   ;
    1/(l*M)];
 
 C = [1 0 0 0;
-      0 0 1 0];
+     0 0 1 0];
 
 D=0;
 % Sistema discreto
@@ -58,8 +58,8 @@ Aa_ = [Ad_ , zeros(4,1) ; -Cd_(1,:)*Ad_, eye(1)];
 Ba_ = [Bd_; -Cd_(1,:)*Bd_];
 
 %%Calculamos el LQR para cada caso
-Q1 = diag([1 1 5 5 .000003]); R1=1;
-Q2 = diag([400 200 100 100 .000001]); R2=20;
+Q1 = diag([1 50 500 .1 .0003]); R1=1;
+Q2 = diag([10 50 90 .01 .00045]); R2=.1;
 
 [Klqr1, ~, ~] = dlqr(Aa, Ba, Q1, R1);
 [Klqr2, ~, ~] = dlqr(Aa_, Ba_, Q2, R2);
@@ -76,6 +76,7 @@ KI_ = -Klqr2(5);
 Ao = Ad';
 Bo = Cd';
 Co = Bd';
+
 Qo = diag([100 5000 50000 10]);
 Ro = diag([.01 .01]);
 Ko = (dlqr(Ao,Bo,Qo,Ro))';
@@ -96,7 +97,7 @@ phi(1)   = pi;
 phi_p(1) = 0;
 phi_pp(1) = 0;
 
-posRef = 10;            % referencia de posicion a donde se quiere desplazar el carro
+ref = 10;            % referencia de posicion a donde se quiere desplazar el carro
 
 X= [d(1) d_p(1) phi(1) phi_p(1)]';
 xop = [0 0 pi 0]'; %Punto de operacion
@@ -104,8 +105,15 @@ xop = [0 0 pi 0]'; %Punto de operacion
 u = [];
 flag  = 0;
 
-ei = 0;
+ei(1) = 0;
 x_hat = [0 0 pi 0]';
+
+K_c  = K;       % controlador K
+KI_c = KI;      % constante de error Ki
+Ko_c = Ko;      % observador Ko
+m_c  = m;       % masa a transportar por el carro
+A    = Ad;      % matriz de estados A
+B    = Bd;      % matriz de entrada B
 
 for ki=1:p_max
 
@@ -113,18 +121,18 @@ for ki=1:p_max
     Ys   = Cd*X;             % salida del sistema
     Y_obs = Cd*(x_hat+xop);   % salida del observador
 
-    ei= ei+posRef-Ys(1);
+    ei(ki+1)= ei(ki)+ref-Ys(1);
 
     %Ley de control
-    u1(ki) = -K*(X - xop) + KI*ei;          % sin observador
-%     u1(ki)  = -K*(x_hat - xop) + KI*ei;     % con observador
+    %u1(ki) = -K_c*(x - xop) + KI_c*ei(ki+1);          % sin observador
+    u1(ki)  = -K_c*(x_hat - xop) + KI_c*ei(ki+1);     % con observador
 
     % Zona Muerta
-%     if(abs(u1(ki)) < 0.5)
-%         u1(ki) = 0;
-%     else
-%         u1(ki) = sign(u1(ki))*(abs(u1(ki)) - 0.5);
-%     end
+    if(abs(u1(ki)) < 0.5)
+        u1(ki) = 0;
+    else
+        u1(ki) = sign(u1(ki))*(abs(u1(ki)) - 0.5);
+    end
 
 
     % Integraciones de Euler por paso de simulaci�n
@@ -133,7 +141,7 @@ for ki=1:p_max
         u(i) = u1(ki);
 
         % C�lculo por sistema no lineal
-        d_pp       = (1/(M+m))*(u(i) - m*l*phi_pp*cos(phi(i)) + m*l*phi_p(i)^2*sin(phi(i)) - F*d_p(i));
+        d_pp       = (1/(M+m_c))*(u(i) - m_c*l*phi_pp*cos(phi(i)) + m_c*l*phi_p(i)^2*sin(phi(i)) - F*d_p(i));
         phi_pp     = (1/l)*(g*sin(phi(i)) - d_pp*cos(phi(i)));
         d_p(i+1)   = d_p(i) + h*d_pp;
         d(i+1)     = d(i) + h*d_p(i);
@@ -142,14 +150,14 @@ for ki=1:p_max
 
         if(d(i) >= 9.99)
             if(flag == 0)
-                posRef  = 0;
-                m  = m_;
+                ref  = 0;
+                m_c  = m_;
                 flag = 1;
-                K  = K_;
-                Ki = KI_;
-                Ko = Ko_;
-                Ad    = Ad_;
-                Bd    = Bd_;
+                K_c  = K_;
+                Ki_c = KI_;
+                Ko_c = Ko_;
+                A    = Ad_;
+                B    = Bd_;
             end
         end
         i=i+1;
@@ -159,7 +167,7 @@ for ki=1:p_max
     % Estados del sistema
     X     = [d(i-1) d_p(i-1) phi(i-1) phi_p(i-1)]';
     % Estados estimados por el observador
-    x_hat = Ad*(x_hat-xop) + Bd*u1(ki) + Ko*(Ys - Y_obs) + xop;
+    x_hat = A*(x_hat) + B*u1(ki) + Ko*(Ys - Y_obs) + xop;
 end
 
 u(i) = u1(ki);
@@ -189,4 +197,3 @@ subplot(2,1,2);grid on; hold on;
 plot(d,d_p,'LineWidth',1.5);
 title('Distancia vs velocidad');
 xlabel('Distancia');ylabel('Velocidad');
-
